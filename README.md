@@ -3,6 +3,7 @@ Soil Humidity measurments with an arduino and a Capacitive Soil Moisture Sensor 
 
 
 ####################
+
 Helpful links:  
 
 LCD and arduino:    https://www.arduino.cc/en/Reference/LiquidCrystal
