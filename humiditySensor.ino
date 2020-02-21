@@ -292,7 +292,7 @@ Serial.end();
   
 //sensorValueInPercent = 100 - (((sensorValue - MIN_ANALOG_SENSOR_VALUE) / (MAX_ANALOG_SENSOR_VALUE - MIN_ANALOG_SENSOR_VALUE)) * 100); // convert into %
   
-Serial.end();
+
 
 cachedSensorValue=sensorValue; // for the lookup if it is necessary to store the next measured value or to count this value ...
 
