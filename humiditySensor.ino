@@ -40,8 +40,8 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // initialize the library with the number
 //  Your Calibration measurements put in here
 // ############################################
 
-float MAX_ANALOG_SENSOR_VALUE = 574; // This is the MIN humidity
-float MIN_ANALOG_SENSOR_VALUE = 230;//This is the MAX humidity  ... yes it's reciprocal ...
+int MAX_ANALOG_SENSOR_VALUE = 574; // This is the MIN humidity
+int MIN_ANALOG_SENSOR_VALUE = 230;//This is the MAX humidity  ... yes it's reciprocal ...
 // #####################################################################################################
 
 
@@ -79,6 +79,21 @@ int address = 0; //EEPROM address
 
 
 
+//Stored calibration bytes:
+static const int ADDRESS_CALIBRATION_MIN_VALUE = EEPROM.length()-4;
+//int EEPROM.length()-3
+static const int ADDRESS_CALIBRATION_MAX_VALUE = EEPROM.length()-2;
+//int EEPROM.length()-1
+
+
+
+ byte MIN_ANALOG_SENSOR_VALUE_Byte1 = 0;
+ byte MIN_ANALOG_SENSOR_VALUE_Byte2 = 0;
+ byte MAX_ANALOG_SENSOR_VALUE_Byte1 = 0;
+ byte MAX_ANALOG_SENSOR_VALUE_Byte2 = 0;
+
+
+
 int a = 0;  //serial output and iteration
 
 
@@ -99,6 +114,20 @@ void setup() {
   lcd.begin(16, 2);
   pinMode(pinCalibrateHigh, INPUT);
   pinMode(pinCalibrateLow, INPUT);
+
+
+  MIN_ANALOG_SENSOR_VALUE_Byte1 = EEPROM.read(ADDRESS_CALIBRATION_MIN_VALUE);
+  MIN_ANALOG_SENSOR_VALUE_Byte2 = EEPROM.read(ADDRESS_CALIBRATION_MIN_VALUE + 1);
+  MIN_ANALOG_SENSOR_VALUE_Byte1 = EEPROM.read(ADDRESS_CALIBRATION_MAX_VALUE);
+  MIN_ANALOG_SENSOR_VALUE_Byte2 = EEPROM.read(ADDRESS_CALIBRATION_MAX_VALUE + 1);
+
+
+  MIN_ANALOG_SENSOR_VALUE = MIN_ANALOG_SENSOR_VALUE_Byte1*100 + MIN_ANALOG_SENSOR_VALUE_Byte2;
+  MAX_ANALOG_SENSOR_VALUE = MAX_ANALOG_SENSOR_VALUE_Byte1*100 + MAX_ANALOG_SENSOR_VALUE_Byte2;;
+  
+
+
+  
 }
 
 
@@ -110,6 +139,30 @@ void setup() {
 void loop() {
 
    
+
+
+if (digitalRead(pinCalibrateLow) && digitalRead(pinCalibrateHigh) ) {
+
+
+Serial.begin(9600);
+Serial.println("DATA");
+Serial.println(EEPROM.length());
+while (a < EEPROM.length()) {
+    Serial.println(EEPROM.read(a));
+
+
+    a = a + 1;
+  }
+  a=0;
+
+Serial.println("Finito");
+Serial.end();
+}
+
+
+
+
+
   
 
   //Measurement
@@ -119,14 +172,34 @@ void loop() {
   sensorValueByte2=sensorValue - (sensorValueByte1)*100;
 
 
+
+
+
+
+
+
 //Calibration Value 2 through button 1 pressed
 //ToDo: store in EEPROM
 
   if (digitalRead(pinCalibrateHigh)) {
     lcd.clear();
     MIN_ANALOG_SENSOR_VALUE = sensorValue;
+
+
+   MIN_ANALOG_SENSOR_VALUE_Byte1 = MIN_ANALOG_SENSOR_VALUE / 100;  
+   MIN_ANALOG_SENSOR_VALUE_Byte2 = MIN_ANALOG_SENSOR_VALUE - MIN_ANALOG_SENSOR_VALUE_Byte1*100;  
+
+    
+    EEPROM.update(ADDRESS_CALIBRATION_MIN_VALUE,MIN_ANALOG_SENSOR_VALUE_Byte1);
+    EEPROM.update(ADDRESS_CALIBRATION_MIN_VALUE+1,MIN_ANALOG_SENSOR_VALUE_Byte2);
+    
     lcd.print("AnalogIn: ");
     lcd.print(MIN_ANALOG_SENSOR_VALUE);
+
+
+
+
+    
     delay(3000);
   }
 
@@ -134,9 +207,22 @@ void loop() {
  //Calibration Value 2 through button 2 pressed
   if (digitalRead(pinCalibrateLow)) {
     MAX_ANALOG_SENSOR_VALUE = sensorValue;
+    
+    
+   MAX_ANALOG_SENSOR_VALUE_Byte1 = MAX_ANALOG_SENSOR_VALUE / 100;  
+   MAX_ANALOG_SENSOR_VALUE_Byte2 = MAX_ANALOG_SENSOR_VALUE - MAX_ANALOG_SENSOR_VALUE_Byte1*100;  
+    
+
+    EEPROM.update(ADDRESS_CALIBRATION_MAX_VALUE,MAX_ANALOG_SENSOR_VALUE_Byte1);
+    EEPROM.update(ADDRESS_CALIBRATION_MAX_VALUE+1,MAX_ANALOG_SENSOR_VALUE_Byte2);
+    
     lcd.clear();
     lcd.print("AnalogIn: ");
     lcd.print(MAX_ANALOG_SENSOR_VALUE);
+
+
+
+    
     delay(3000);
   }
 
@@ -179,6 +265,9 @@ void loop() {
 
 
 //Display output of the measurementvalue of the sensor 
+
+
+
   lcd.print("AnalogIn: ");
   lcd.print(sensorValue);
   lcd.setCursor(0, 1);
