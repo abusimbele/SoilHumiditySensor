@@ -79,6 +79,9 @@ int address = 0; //EEPROM address
 
 
 
+
+boolean storeInEeprom = false; // Flag to store or not to store in EEPROM
+
 //Stored calibration bytes:
 static const int ADDRESS_CALIBRATION_MIN_VALUE = EEPROM.length()-4;
 //int EEPROM.length()-3
@@ -188,7 +191,7 @@ Serial.end();
 
 
 //Calibration Value 2 through button 1 pressed
-//ToDo: store in EEPROM
+
 
   if (digitalRead(pinCalibrateHigh)) {
     lcd.clear();
@@ -210,6 +213,11 @@ Serial.end();
 
     
     delay(3000);
+
+
+
+
+    
   }
 
 
@@ -233,6 +241,36 @@ Serial.end();
 
     
     delay(3000);
+    lcd.clear();
+
+
+
+   /*
+    * If Button 2 is pressed after button 1 EEPROM storage will be activated or deactivated
+    */
+   if (digitalRead(pinCalibrateHigh)) {
+    
+     
+     if(!storeInEeprom){
+     lcd.print("STORE");
+     lcd.setCursor(0, 1);
+     lcd.print("DATA IN EEPROM");
+     storeInEeprom = true;}
+     
+     else{
+      lcd.print("STOP");
+       lcd.setCursor(0, 1);
+      lcd.print("SAVE IN EEPROM");
+      storeInEeprom = false;
+      }
+     delay(3000);
+     lcd.clear();
+     
+     
+   }
+
+
+    
   }
 
 
@@ -243,29 +281,29 @@ Serial.end();
  *  A value is stored in 2 Bytes
  *  If the value has not changed a counter stores the number of unchanged measurments and this number will later be stored in the EEPROM to decrease EEPROM writes problems and saves storage
  */
- 
-  if (cachedSensorValue!=sensorValue) {
-    if (counter == 0) {
-      EEPROM.write(address , sensorValueByte1);
-      EEPROM.write(address + 1 , sensorValueByte2);
-       address = address + 2;
-    }
+  if(storeInEeprom){
+    if (cachedSensorValue!=sensorValue) {
+      if (counter == 0) {
+       EEPROM.write(address , sensorValueByte1);
+        EEPROM.write(address + 1 , sensorValueByte2);
+         address = address + 2;
+      }
 
-    else {
-      counterByte1=counter /100 ;    
+     else {
+        counterByte1=counter /100 ;    
         
-      EEPROM.write(address, counterByte1);
-      EEPROM.write(address + 1, counterByte2);
-      EEPROM.write(address + 2, sensorValueByte1);
-      EEPROM.write(address + 3, sensorValueByte2);
+        EEPROM.write(address, counterByte1);
+        EEPROM.write(address + 1, counterByte2);
+        EEPROM.write(address + 2, sensorValueByte1);
+        EEPROM.write(address + 3, sensorValueByte2);
+       
+        address = address + 4; // because 2 Bytes are used for the new  measured value and 2 bytes are used for the previous count of the unchanged measurements   address +4 as new starting point to store a value 
       
-      address = address + 4; // because 2 Bytes are used for the new  measured value and 2 bytes are used for the previous count of the unchanged measurements   address +4 as new starting point to store a value 
-      
-    }
-
+     }
+   }
     counter = 0;
    
-  }
+ }
 
 
   else {
