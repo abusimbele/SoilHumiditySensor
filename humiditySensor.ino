@@ -19,15 +19,25 @@
 #include <EEPROM.h>  // to store measurment values in the eeprom max 1024 Bytes
 
 
+
+
+
+
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // initialize the library with the numbers of the interface pins
+
+
+/*
+  Global variables
+  *********************
+*/
+
+
 /*
   PIN SETUP
 */
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // initialize the library with the numbers of the interface pins
-int sensorPin = A0;  // select the input pin for the potentiometer  control the visibility on the display
 
-int a = 0;
-int counter = 0;
-int address = 0;
+int sensorPin = A0;  // select the input pin for the potentiometer  control the visibility on the display
 
 
 /*
@@ -37,28 +47,37 @@ int address = 0;
 float MAX_ANALOG_SENSOR_VALUE = 574; // This is the MIN humidity
 float MIN_ANALOG_SENSOR_VALUE = 230;//This is the MAX humidity  ... yes it's reciprocal ...
 
+int pinCalibrateHigh = 6; // button to start the calibration for low humidity
+int pinCalibrateLow = 7;  // button to start the calibration for lhigh humidity
 
 
-/*
-  Global variables
-*/
-
+//Sensore varibale stuff
 unsigned int sensorValue=0;
+float sensorValueInPercent = 0;
 unsigned int cachedSensorValue=1;
 
 byte sensorValueByte1 = 0;  // variable to store the value coming from the sensor
 byte sensorValueByte2 = 0;  // variable to store the value coming from the sensor
 
+
+
+// same measurement value counter and convertion
+int counter = 0;
 byte counterByte1=0;
 byte counterByte2=0;
 
 
-float sensorValueInPercent = 0;
-int pinCalibrateHigh = 6; // button to start the calibration for low humidity
-int pinCalibrateLow = 7;  // button to start the calibration for lhigh humidity
+int address = 0; //EEPROM address
 
 
 
+int a = 0;  //serial output and iteration
+
+
+/*
+  Global variables  END
+  *********************
+*/
 
 void setup() {
 
@@ -74,15 +93,14 @@ void setup() {
 
 
 
-
 void loop() {
 
    
   
 
-
+  //Measurement
   sensorValue = analogRead(sensorPin);   // read the value from the sensor:
-
+  //split into 2 bytes. first byte shows x100, second one x10 and x1
   sensorValueByte1=sensorValue /100;
   sensorValueByte2=sensorValue - (sensorValueByte1)*100;
 
