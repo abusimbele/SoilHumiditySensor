@@ -154,6 +154,7 @@ if (digitalRead(pinCalibrateLow) && digitalRead(pinCalibrateHigh) ) {
 
 Serial.begin(9600);
 Serial.println("DATA");
+Serial.print("Available EEPROM Bytes: ");
 Serial.println(EEPROM.length());
 while (a < EEPROM.length()) {
     Serial.println(EEPROM.read(a));
@@ -275,7 +276,7 @@ Serial.end();
 //Display output of the measurementvalue of the sensor 
 
 
-
+  lcd.clear();
   lcd.print("AnalogIn: ");
   lcd.print(sensorValue);
   lcd.setCursor(0, 1);
