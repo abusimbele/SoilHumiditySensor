@@ -27,28 +27,36 @@
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // initialize the library with the numbers of the interface pins
 
 
-/*
+/*****************************************************************************************************
   Global variables
   *********************
 */
 
 
-/*
-  PIN SETUP
-*/
-
-int sensorPin = A0;  // select the input pin for the potentiometer  control the visibility on the display
 
 
-/*
-  Your Calibration measurements put in here
-*/
+
+// #####################################################################################################
+//  Your Calibration measurements put in here
+// ############################################
 
 float MAX_ANALOG_SENSOR_VALUE = 574; // This is the MIN humidity
 float MIN_ANALOG_SENSOR_VALUE = 230;//This is the MAX humidity  ... yes it's reciprocal ...
+// #####################################################################################################
 
+
+
+
+// ######################################################################################################
+//  PIN SETUP
+// ##############
+
+int sensorPin = A0;  // select the input pin for the potentiometer  control the visibility on the display
 int pinCalibrateHigh = 6; // button to start the calibration for low humidity
 int pinCalibrateLow = 7;  // button to start the calibration for lhigh humidity
+
+// #######################################################################################################
+
 
 
 //Sensore varibale stuff
@@ -76,8 +84,14 @@ int a = 0;  //serial output and iteration
 
 /*
   Global variables  END
-  *********************
+  ******************************************************************************************
 */
+
+
+
+
+
+
 
 void setup() {
 
