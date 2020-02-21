@@ -40,8 +40,8 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2); // initialize the library with the number
 //  Your Calibration measurements put in here
 // ############################################
 
-int MAX_ANALOG_SENSOR_VALUE = 574; // This is the MIN humidity
-int MIN_ANALOG_SENSOR_VALUE = 230;//This is the MAX humidity  ... yes it's reciprocal ...
+unsigned int MAX_ANALOG_SENSOR_VALUE = 574; // This is the MIN humidity
+unsigned int MIN_ANALOG_SENSOR_VALUE = 230;//This is the MAX humidity  ... yes it's reciprocal ...
 // #####################################################################################################
 
 
@@ -61,7 +61,7 @@ int pinCalibrateLow = 7;  // button to start the calibration for lhigh humidity
 
 //Sensore varibale stuff
 unsigned int sensorValue=0;
-float sensorValueInPercent = 0;
+float sensorValueInPercent = 0.0;
 unsigned int cachedSensorValue=1;
 
 byte sensorValueByte1 = 0;  // variable to store the value coming from the sensor
@@ -118,12 +118,20 @@ void setup() {
 
   MIN_ANALOG_SENSOR_VALUE_Byte1 = EEPROM.read(ADDRESS_CALIBRATION_MIN_VALUE);
   MIN_ANALOG_SENSOR_VALUE_Byte2 = EEPROM.read(ADDRESS_CALIBRATION_MIN_VALUE + 1);
-  MIN_ANALOG_SENSOR_VALUE_Byte1 = EEPROM.read(ADDRESS_CALIBRATION_MAX_VALUE);
-  MIN_ANALOG_SENSOR_VALUE_Byte2 = EEPROM.read(ADDRESS_CALIBRATION_MAX_VALUE + 1);
+  MAX_ANALOG_SENSOR_VALUE_Byte1 = EEPROM.read(ADDRESS_CALIBRATION_MAX_VALUE);
+  MAX_ANALOG_SENSOR_VALUE_Byte2 = EEPROM.read(ADDRESS_CALIBRATION_MAX_VALUE + 1);
 
 
   MIN_ANALOG_SENSOR_VALUE = MIN_ANALOG_SENSOR_VALUE_Byte1*100 + MIN_ANALOG_SENSOR_VALUE_Byte2;
   MAX_ANALOG_SENSOR_VALUE = MAX_ANALOG_SENSOR_VALUE_Byte1*100 + MAX_ANALOG_SENSOR_VALUE_Byte2;;
+
+  lcd.print("Stored MIN: ");
+  lcd.print(MIN_ANALOG_SENSOR_VALUE);
+  lcd.setCursor(0, 1);
+    lcd.print("Stored MAX: ");
+  lcd.print(MAX_ANALOG_SENSOR_VALUE);
+  delay(3000);
+  lcd.clear();
   
 
 
@@ -271,9 +279,20 @@ Serial.end();
   lcd.print("AnalogIn: ");
   lcd.print(sensorValue);
   lcd.setCursor(0, 1);
-  sensorValueInPercent = 100 - (((sensorValue - MIN_ANALOG_SENSOR_VALUE) / (MAX_ANALOG_SENSOR_VALUE - MIN_ANALOG_SENSOR_VALUE)) * 100); // convert into %
 
 
+
+  //convert into %
+  float value1 = (sensorValue - MIN_ANALOG_SENSOR_VALUE); //from byte to float
+  
+  float value2 = (MAX_ANALOG_SENSOR_VALUE - MIN_ANALOG_SENSOR_VALUE);  //from byte to float
+  
+  sensorValueInPercent = 100 - (( value1 / value2 )* 100); // converted in % 
+
+  
+//sensorValueInPercent = 100 - (((sensorValue - MIN_ANALOG_SENSOR_VALUE) / (MAX_ANALOG_SENSOR_VALUE - MIN_ANALOG_SENSOR_VALUE)) * 100); // convert into %
+  
+Serial.end();
 
 cachedSensorValue=sensorValue; // for the lookup if it is necessary to store the next measured value or to count this value ...
 
